@@ -36,7 +36,7 @@ A full-stack AI-powered project management SaaS built with the MERN stack. Featu
 | Database | MongoDB + Mongoose |
 | Auth | JWT + bcryptjs + httpOnly cookies |
 | Real-time | Socket.io |
-| AI | OpenAI API (GPT-3.5-turbo) |
+| AI | Grok API |
 | Charts | Recharts |
 | Deployment | Vercel + Render + MongoDB Atlas |
 
