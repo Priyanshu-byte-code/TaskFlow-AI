@@ -1,0 +1,48 @@
+require('dotenv').config();  // ← must be FIRST line
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const connectDB = require('./config/db');
+const socketHandler = require('./utils/socketHandler');
+const { errorHandler } = require('./middleware/errorMiddleware');
+
+connectDB();
+// ... rest stays same
+
+const app = express();
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL,
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+
+socketHandler(io);
+
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(express.json());
+app.use(cookieParser());
+
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/projects', require('./routes/projectRoutes'));
+app.use('/api/tasks', require('./routes/taskRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/ai', require('./routes/aiRoutes'));
+
+app.get('/api/health', (req, res) => res.json({ status: 'OK', timestamp: new Date() }));
+
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
